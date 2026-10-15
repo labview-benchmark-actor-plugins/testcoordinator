@@ -30,6 +30,7 @@
 		<Item Name="Application.lvlib" Type="Library" URL="../Libraries/Application/Application.lvlib"/>
 		<Item Name="isProcedureCompatible.vi" Type="VI" URL="../../modules/coordinator/src/Libraries/UserEventRecorder/isProcedureCompatible.vi"/>
 		<Item Name="Test Procedure.ctl" Type="VI" URL="../Libraries/testCoordinator/Test Procedure.ctl"/>
+		<Item Name="Test Launcher API.vi" Type="VI" URL="../../modules/coordinator/src/Libraries/Launcher/Test Launcher API.vi"/>
 		<Item Name="Dependencies" Type="Dependencies"/>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="Application" Type="EXE">
