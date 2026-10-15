@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Master pipeline script to generate an SBOM using VIPM, scan for vulnerabilities using Grype, 
+    Master pipeline script to generate SBOMs using VIPM and Syft, scan for vulnerabilities using Grype, 
     and upload/seed the results to Dependency-Track v4.14.2.
 #>
 
@@ -31,6 +31,10 @@ param(
 
     [string]$SchemaVersion = '1.5',
 
+    # Syft Generation Parameters
+    [switch]$EnableSyft = $true,
+    [string]$SyftOutputPath = "output/syft-sbom.json",
+
     # Vulnerability Scan Parameters
     [switch]$EnableVulnerabilityScan = $true,
     [string]$VulnerabilityOutputPath = "output/vulnerabilities.json",
@@ -48,13 +52,13 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "Starting Complete Local SBOM Pipeline" -ForegroundColor Cyan
+Write-Host "Starting Complete Local SBOM Pipeline (VIPM + Syft)" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 # ==========================================
-# STEP 1: Generate SBOM via VIPM CLI
+# STEP 1A: Generate LabVIEW SBOM via VIPM CLI
 # ==========================================
-Write-Host "`n[Step 1/3] Validating and Generating SBOM..." -ForegroundColor Yellow
+Write-Host "`n[Step 1A/3] Validating and Generating LabVIEW SBOM via VIPM..." -ForegroundColor Yellow
 
 if ($LabViewVersion -match '^(\d{4})q([13])$') {
     $year = [int]$Matches[1]
@@ -86,7 +90,7 @@ if (-not (Test-Path -Path $outputDir)) {
     New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 }
 
-Write-Host "Generating SBOM using local VIPM CLI..." -ForegroundColor Cyan
+Write-Host "Generating VIPM SBOM..." -ForegroundColor Cyan
 
 vipm sbom $resolvedLvprojPath `
     --format $Format `
@@ -101,21 +105,50 @@ vipm sbom $resolvedLvprojPath `
     --allow-missing-files
 
 if ($LASTEXITCODE -ne 0) {
-    throw "Local SBOM generation failed with exit code $LASTEXITCODE"
+    throw "Local VIPM SBOM generation failed with exit code $LASTEXITCODE"
 }
 
 if (-not (Test-Path -Path $resolvedOutputPath -PathType Leaf)) {
     throw "No SBOM file found at '$resolvedOutputPath'."
 }
 
-Write-Host "SBOM generated and verified successfully: $resolvedOutputPath" -ForegroundColor Green
+Write-Host "VIPM SBOM generated successfully: $resolvedOutputPath" -ForegroundColor Green
+
+
+# ==========================================
+# STEP 1B: Generate Workspace SBOM via Syft
+# ==========================================
+if ($EnableSyft) {
+    Write-Host "`n[Step 1B/3] Generating Workspace SBOM via Syft..." -ForegroundColor Yellow
+
+    if (-not (Get-Command "syft" -ErrorAction SilentlyContinue)) {
+        throw "Syft CLI ('syft') is not found in the system PATH. Please install it via: winget install Anchore.Syft"
+    }
+
+    $resolvedSyftPath = [System.IO.Path]::GetFullPath($SyftOutputPath)
+    $syftDir = [System.IO.Path]::GetDirectoryName($resolvedSyftPath)
+    if (-not (Test-Path -Path $syftDir)) {
+        New-Item -ItemType Directory -Force -Path $syftDir | Out-Null
+    }
+
+    Write-Host "Scanning local directory with Syft..." -ForegroundColor Cyan
+    syft dir:. -o cyclonedx-json > $resolvedSyftPath
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Syft SBOM generation failed with exit code $LASTEXITCODE"
+    }
+
+    Write-Host "Syft Workspace SBOM generated successfully: $resolvedSyftPath" -ForegroundColor Green
+} else {
+    Write-Host "`n[Step 1B/3] Skipping Syft SBOM generation (disabled by switch)." -ForegroundColor DarkGray
+}
 
 
 # ==========================================
 # STEP 2: Scan for Vulnerabilities via Grype
 # ==========================================
 if ($EnableVulnerabilityScan) {
-    Write-Host "`n[Step 2/3] Scanning SBOM for vulnerabilities using Grype..." -ForegroundColor Yellow
+    Write-Host "`n[Step 2/3] Scanning VIPM SBOM for vulnerabilities using Grype..." -ForegroundColor Yellow
 
     if (-not (Get-Command "grype" -ErrorAction SilentlyContinue)) {
         throw "Grype CLI ('grype') is not found in the system PATH. Please install it via: winget install Anchore.Grype"
@@ -127,7 +160,7 @@ if ($EnableVulnerabilityScan) {
         New-Item -ItemType Directory -Force -Path $vulnDir | Out-Null
     }
 
-    Write-Host "Running Grype scan against SBOM..." -ForegroundColor Cyan
+    Write-Host "Running Grype scan against VIPM SBOM..." -ForegroundColor Cyan
     grype sbom:$resolvedOutputPath
 
     if ($LASTEXITCODE -ne 0) {
@@ -145,10 +178,15 @@ if ($EnableVulnerabilityScan) {
 # STEP 3: Upload to Dependency-Track
 # ==========================================
 if ($EnableUpload) {
-    Write-Host "`n[Step 3/3] Uploading SBOM to Dependency-Track..." -ForegroundColor Yellow
+    Write-Host "`n[Step 3/3] Uploading VIPM SBOM to Dependency-Track..." -ForegroundColor Yellow
+
+    # Fallback to environment variable if -ApiKey parameter wasn't supplied
+    if (-not $ApiKey) {
+        $ApiKey = $env:DEPENDENCY_TRACK_API_KEY
+    }
 
     if (-not $ApiKey) {
-        throw "ApiKey parameter is required when EnableUpload is true."
+        throw "Dependency-Track API Key is missing. Provide it via the -ApiKey parameter or set the DEPENDENCY_TRACK_API_KEY environment variable."
     }
     
     if (-not $ProjectName) { $ProjectName = $ProductName }
