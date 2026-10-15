@@ -83,12 +83,14 @@
 				<Item Name="Instruction Completed Argument--cluster.ctl" Type="VI" URL="../Instruction Completed Argument--cluster.ctl"/>
 				<Item Name="Process First Instruction Argument--cluster.ctl" Type="VI" URL="../Process First Instruction Argument--cluster.ctl"/>
 				<Item Name="Load Next Test Case Argument--cluster.ctl" Type="VI" URL="../Load Next Test Case Argument--cluster.ctl"/>
+				<Item Name="Execute Launcher Argument--cluster.ctl" Type="VI" URL="../Execute Launcher Argument--cluster.ctl"/>
 			</Item>
 			<Item Name="Load Test Procedure.vi" Type="VI" URL="../Load Test Procedure.vi"/>
 			<Item Name="Process Test Procedure Metadata.vi" Type="VI" URL="../Process Test Procedure Metadata.vi"/>
 			<Item Name="Instruction Completed.vi" Type="VI" URL="../Instruction Completed.vi"/>
 			<Item Name="Process First Instruction.vi" Type="VI" URL="../Process First Instruction.vi"/>
 			<Item Name="Load Next Test Case.vi" Type="VI" URL="../Load Next Test Case.vi"/>
+			<Item Name="Execute Launcher.vi" Type="VI" URL="../Execute Launcher.vi"/>
 		</Item>
 		<Item Name="Request Events--cluster.ctl" Type="VI" URL="../Request Events--cluster.ctl"/>
 		<Item Name="Obtain Request Events.vi" Type="VI" URL="../Obtain Request Events.vi"/>
