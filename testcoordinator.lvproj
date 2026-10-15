@@ -1,6 +1,7 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="26008000">
 	<Property Name="CCSymbols" Type="Str">DQMH_Disable_SEH,FALSE;</Property>
+	<Property Name="NI.LV.All.SaveVersion" Type="Str">26.0</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -16,16 +17,19 @@
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
 		<Item Name="Documentation" Type="Folder">
 			<Item Name="Readme.txt" Type="Document" URL="../Documentation/Readme.txt"/>
+			<Item Name="testSample.vi" Type="VI" URL="../../modules/coordinator/src/Libraries/UserEventRecorder/testSample.vi"/>
 		</Item>
 		<Item Name="Testers" Type="Folder">
-			<Item Name="Test My Singleton Module API.vi" Type="VI" URL="../Libraries/My Singleton Module/Test My Singleton Module API.vi"/>
+			<Item Name="Test testCoordinator API.vi" Type="VI" URL="../Libraries/testCoordinator/Test testCoordinator API.vi"/>
 			<Item Name="Test My Cloneable Module API.vi" Type="VI" URL="../Libraries/My Cloneable Module/Test My Cloneable Module API.vi"/>
 		</Item>
 		<Item Name="Modules" Type="Folder">
-			<Item Name="My Singleton Module.lvlib" Type="Library" URL="../Libraries/My Singleton Module/My Singleton Module.lvlib"/>
+			<Item Name="testCoordinator.lvlib" Type="Library" URL="../Libraries/testCoordinator/testCoordinator.lvlib"/>
 			<Item Name="My Cloneable Module.lvlib" Type="Library" URL="../Libraries/My Cloneable Module/My Cloneable Module.lvlib"/>
 		</Item>
 		<Item Name="Application.lvlib" Type="Library" URL="../Libraries/Application/Application.lvlib"/>
+		<Item Name="isProcedureCompatible.vi" Type="VI" URL="../../modules/coordinator/src/Libraries/UserEventRecorder/isProcedureCompatible.vi"/>
+		<Item Name="Test Procedure.ctl" Type="VI" URL="../Libraries/testCoordinator/Test Procedure.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies"/>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="Application" Type="EXE">
